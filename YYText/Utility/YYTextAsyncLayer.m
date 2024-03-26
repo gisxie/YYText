@@ -117,6 +117,11 @@ static dispatch_queue_t YYTextAsyncLayerGetReleaseQueue() {
 #pragma mark - Private
 
 - (void)_displayAsync:(BOOL)async {
+    if (self.bounds.size.width<=0 || self.bounds.size.height<=0) {
+        self.contents = nil;
+        return;
+    }
+
     __strong id<YYTextAsyncLayerDelegate> delegate = (id)self.delegate;
     YYTextAsyncLayerDisplayTask *task = [delegate newAsyncDisplayTask];
     if (!task.display) {
@@ -155,9 +160,10 @@ static dispatch_queue_t YYTextAsyncLayerGetReleaseQueue() {
                 CGColorRelease(backgroundColor);
                 return;
             }
+            if (size.width <= 0 || size.height <= 0) return;
             UIGraphicsBeginImageContextWithOptions(size, opaque, scale);
             CGContextRef context = UIGraphicsGetCurrentContext();
-            if (opaque && context) {
+            if (opaque) {
                 CGContextSaveGState(context); {
                     if (!backgroundColor || CGColorGetAlpha(backgroundColor) < 1) {
                         CGContextSetFillColorWithColor(context, [UIColor whiteColor].CGColor);
@@ -200,9 +206,10 @@ static dispatch_queue_t YYTextAsyncLayerGetReleaseQueue() {
     } else {
         [_sentinel increase];
         if (task.willDisplay) task.willDisplay(self);
+        if (self.bounds.size.width <= 0 || self.bounds.size.height <= 0) return;
         UIGraphicsBeginImageContextWithOptions(self.bounds.size, self.opaque, self.contentsScale);
         CGContextRef context = UIGraphicsGetCurrentContext();
-        if (self.opaque && context) {
+        if (self.opaque) {
             CGSize size = self.bounds.size;
             size.width *= self.contentsScale;
             size.height *= self.contentsScale;

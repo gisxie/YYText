@@ -402,7 +402,27 @@ static dispatch_queue_t YYLabelGetReleaseQueue() {
     
     self.isAccessibilityElement = YES;
 }
-
+- (void)traitCollectionDidChange:(UITraitCollection *)previousTraitCollection {
+    [super traitCollectionDidChange:previousTraitCollection];
+    
+    if ([self.traitCollection hasDifferentColorAppearanceComparedToTraitCollection:previousTraitCollection]) {
+        
+        NSMutableAttributedString *innerText = [self valueForKey:@"_innerText"];
+        [innerText enumerateAttribute:NSForegroundColorAttributeName
+                              inRange:NSMakeRange(0, innerText.length)
+                              options:NSAttributedStringEnumerationLongestEffectiveRangeNotRequired
+                           usingBlock:^(UIColor * _Nullable value, NSRange range, BOOL * _Nonnull stop) {
+            [innerText removeAttribute:(id)kCTForegroundColorAttributeName range:range];
+            
+//            if (value != nil)
+//            {
+//                           innerText.yy_color = value;
+//                        }
+        }];
+        
+        [self _setLayoutNeedUpdate];
+    }
+}
 #pragma mark - Override
 
 - (instancetype)initWithFrame:(CGRect)frame {
